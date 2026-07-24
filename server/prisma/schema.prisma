@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         String   @default("admin")
+  tokenVersion Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Account {
+  id           String        @id @default(uuid())
+  name         String
+  type         String        // Bank / Cash
+  bank         String?
+  balance      Float         @default(0)
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id              String    @id @default(uuid())
+  type            String    // Income / Expense
+  amount          Float
+  date            DateTime
+  category        String
+  description     String?
+
+  accountId       String
+  account         Account   @relation(fields: [accountId], references: [id])
+
+  sourceInvoiceId String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Invoice {
+  id         String   @id @default(uuid())
+  invoiceNo  String   @unique
+  client     String
+  issueDate  DateTime
+  dueDate    DateTime
+  amount     Float
+  status     String   @default("Pending") // Pending / Overdue / Paid
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Budget {
+  id        String   @id @default(uuid())
+  category  String   @unique
+  budgeted  Float
+  spent     Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
