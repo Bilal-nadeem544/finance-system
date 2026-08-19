@@ -27,7 +27,7 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const { profile } = useFinance();
+  const { profile, brandName, brandLogo } = useFinance();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -39,10 +39,14 @@ export default function Sidebar() {
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col sticky top-0">
       <div className="flex items-center gap-2 px-5 py-5">
-        <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-white font-bold">
-          $
-        </div>
-        <span className="font-semibold text-gray-800">Finance System</span>
+        {brandLogo ? (
+          <img src={brandLogo} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
+        ) : (
+          <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-white font-bold">
+            $
+          </div>
+        )}
+        <span className="font-semibold text-gray-800 truncate">{brandName}</span>
       </div>
 
       <nav className="flex-1 px-3 space-y-1">

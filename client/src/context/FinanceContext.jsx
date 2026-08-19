@@ -4,6 +4,10 @@ import { useAuth } from "./AuthContext";
 
 const FinanceContext = createContext(null);
 
+const BRAND_NAME_KEY = "financeBrandName";
+const BRAND_LOGO_KEY = "financeBrandLogo";
+const DEFAULT_BRAND_NAME = "Finance System";
+
 export function FinanceProvider({ children }) {
   const { user } = useAuth();
 
@@ -11,8 +15,11 @@ export function FinanceProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [budgets, setBudgets] = useState([]);
-  const [categories, setCategories] = useState([]); // [{id, name, type}]
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [brandName, setBrandName] = useState(() => localStorage.getItem(BRAND_NAME_KEY) || DEFAULT_BRAND_NAME);
+  const [brandLogo, setBrandLogo] = useState(() => localStorage.getItem(BRAND_LOGO_KEY) || null);
 
   const settings = { companyName: "Ahmed Enterprises", currency: "PKR - Pakistani Rupee", fiscalYearStart: "January" };
   const profile = user
@@ -120,6 +127,18 @@ export function FinanceProvider({ children }) {
     setCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
+  const updateBrandName = (name) => {
+    const finalName = name.trim() || DEFAULT_BRAND_NAME;
+    setBrandName(finalName);
+    localStorage.setItem(BRAND_NAME_KEY, finalName);
+  };
+
+  const updateBrandLogo = (dataUrl) => {
+    setBrandLogo(dataUrl);
+    if (dataUrl) localStorage.setItem(BRAND_LOGO_KEY, dataUrl);
+    else localStorage.removeItem(BRAND_LOGO_KEY);
+  };
+
   const updateSettings = () => {};
   const updateProfile = () => {};
 
@@ -136,6 +155,10 @@ export function FinanceProvider({ children }) {
         settings,
         profile,
         loading,
+        brandName,
+        brandLogo,
+        updateBrandName,
+        updateBrandLogo,
         addAccount,
         deleteAccount,
         addTransaction,
