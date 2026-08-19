@@ -3,17 +3,15 @@ import { Save } from "lucide-react";
 import { useFinance } from "../context/FinanceContext";
 
 export default function Settings() {
-  const { settings, profile, categories, updateSettings, updateProfile, addCategory, removeCategory } = useFinance();
+  const { settings, profile, updateSettings, updateProfile } = useFinance();
   const [activeTab, setActiveTab] = useState("company");
 
   const [companyForm, setCompanyForm] = useState(settings);
   const [profileForm, setProfileForm] = useState(profile);
-  const [newCategory, setNewCategory] = useState("");
   const [savedMsg, setSavedMsg] = useState("");
 
   const tabs = [
     { id: "company", label: "Company Info" },
-    { id: "categories", label: "Categories" },
     { id: "profile", label: "Profile" },
   ];
 
@@ -34,17 +32,11 @@ export default function Settings() {
     showSaved();
   };
 
-  const handleAddCategory = () => {
-    if (!newCategory.trim()) return;
-    addCategory(newCategory.trim());
-    setNewCategory("");
-  };
-
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-gray-800">Settings</h1>
-        <p className="text-sm text-gray-500">Manage company, categories, and account preferences</p>
+        <p className="text-sm text-gray-500">Manage company and account preferences</p>
       </div>
 
       <div className="flex gap-1 border-b border-gray-200">
@@ -103,35 +95,6 @@ export default function Settings() {
             {savedMsg && <span className="text-xs text-green-600">{savedMsg}</span>}
           </div>
         </form>
-      )}
-
-      {activeTab === "categories" && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5 max-w-xl">
-          <h2 className="text-sm font-semibold text-gray-800 mb-3">Expense categories</h2>
-          <div className="space-y-2">
-            {categories.map((cat) => (
-              <div key={cat} className="flex items-center justify-between border border-gray-100 rounded-lg px-3 py-2">
-                <span className="text-sm text-gray-800">{cat}</span>
-                <button onClick={() => removeCategory(cat)} className="text-xs text-gray-500 hover:text-red-500">
-                  Remove
-                </button>
-              </div>
-            ))}
-            {categories.length === 0 && <p className="text-sm text-gray-400">No categories yet.</p>}
-          </div>
-          <div className="flex gap-2 mt-4">
-            <input
-              type="text"
-              placeholder="New category name"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800"
-            />
-            <button onClick={handleAddCategory} className="bg-green-500 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-              Add
-            </button>
-          </div>
-        </div>
       )}
 
       {activeTab === "profile" && (

@@ -1,20 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, ArrowUpRight, ArrowDownRight, Trash2 } from "lucide-react";
 import Modal from "../components/Modal";
 import { useFinance } from "../context/FinanceContext";
 
 export default function Transactions() {
-  const { transactions, accounts, categories, addTransaction, deleteTransaction } = useFinance();
+  const { transactions, accounts, incomeCategories, expenseCategories, addTransaction, deleteTransaction } = useFinance();
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("All");
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
     type: "Income",
-    category: categories[0] || "",
+    category: "",
     account: accounts[0]?.name || "",
     description: "",
     amount: "",
   });
+
+  const activeCategories = form.type === "Income" ? incomeCategories : expenseCategories;
+
+  useEffect(() => {
+    setForm((f) => ({ ...f, category: activeCategories[0] || "" }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.type]);
 
   const filtered = transactions.filter((t) => filter === "All" || t.type === filter);
   const totalIncome = transactions.filter((t) => t.type === "Income").reduce((s, t) => s + t.amount, 0);
@@ -22,14 +29,14 @@ export default function Transactions() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.amount || !form.description || !form.account) return;
+    if (!form.amount || !form.description || !form.account || !form.category) return;
     await addTransaction(form);
     setForm({ ...form, description: "", amount: "" });
     setOpen(false);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Ye transaction delete karna hai?")) {
+    if (window.confirm("Do You want to Delete the transaction?")) {
       await deleteTransaction(id);
     }
   };
@@ -77,12 +84,6 @@ export default function Transactions() {
             <option>Expense</option>
           </select>
         </div>
-
-        {accounts.length === 0 && (
-          <p className="text-sm text-amber-600 bg-amber-50 rounded-lg px-3 py-2 mb-3">
-            Pehle Accounts page se kam az kam ek account add karo.
-          </p>
-        )}
 
         <table className="w-full text-sm">
           <thead>
@@ -141,10 +142,10 @@ export default function Transactions() {
             <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Category</label>
+            <label className="block text-xs text-gray-500 mb-1">Category ({form.type})</label>
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
-              {categories.length === 0 && <option value="">Pehle koi category add karo</option>}
-              {categories.map((c) => <option key={c}>{c}</option>)}
+              {activeCategories.length === 0 && <option value="">Pehle Categories page se {form.type} category add karo</option>}
+              {activeCategories.map((c) => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div>

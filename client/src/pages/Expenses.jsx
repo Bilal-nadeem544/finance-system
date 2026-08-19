@@ -3,21 +3,13 @@ import { Plus, Trash2 } from "lucide-react";
 import Modal from "../components/Modal";
 import { useFinance } from "../context/FinanceContext";
 
-const categoryColors = {
-  Payroll: "bg-green-500",
-  Operations: "bg-blue-500",
-  Marketing: "bg-purple-500",
-  Other: "bg-orange-500",
-  Sales: "bg-teal-500",
-};
-
 export default function Expenses() {
-  const { transactions, accounts, categories, addExpense, deleteTransaction } = useFinance();
+  const { transactions, accounts, expenseCategories, addExpense, deleteTransaction } = useFinance();
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("All");
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
-    category: categories[0] || "",
+    category: expenseCategories[0] || "",
     account: accounts[0]?.name || "",
     description: "",
     amount: "",
@@ -29,7 +21,7 @@ export default function Expenses() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.description || !form.amount || !form.account) return;
+    if (!form.description || !form.amount || !form.account || !form.category) return;
     await addExpense(form);
     setForm({ ...form, description: "", amount: "" });
     setOpen(false);
@@ -64,15 +56,9 @@ export default function Expenses() {
           <h2 className="text-sm font-semibold text-gray-800">All expenses</h2>
           <select value={filter} onChange={(e) => setFilter(e.target.value)} className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600">
             <option>All</option>
-            {categories.map((c) => <option key={c}>{c}</option>)}
+            {expenseCategories.map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>
-
-        {accounts.length === 0 && (
-          <p className="text-sm text-amber-600 bg-amber-50 rounded-lg px-3 py-2 mb-3">
-            Pehle Accounts page se kam az kam ek account add karo.
-          </p>
-        )}
 
         <table className="w-full text-sm">
           <thead>
@@ -90,12 +76,7 @@ export default function Expenses() {
               <tr key={e.id} className="border-b border-gray-50 last:border-0">
                 <td className="py-2.5 text-gray-500">{new Date(e.date).toLocaleDateString()}</td>
                 <td className="py-2.5 text-gray-800">{e.description}</td>
-                <td className="py-2.5">
-                  <span className="flex items-center gap-1.5 text-gray-600">
-                    <span className={`w-2 h-2 rounded-full inline-block ${categoryColors[e.category] || "bg-gray-400"}`} />
-                    {e.category}
-                  </span>
-                </td>
+                <td className="py-2.5 text-gray-500">{e.category}</td>
                 <td className="py-2.5 text-gray-500">{e.account?.name || "—"}</td>
                 <td className="py-2.5 text-right text-gray-800 font-medium">${e.amount.toLocaleString()}</td>
                 <td className="py-2.5">
@@ -123,8 +104,8 @@ export default function Expenses() {
           <div>
             <label className="block text-xs text-gray-500 mb-1">Category</label>
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
-              {categories.length === 0 && <option value="">Pehle koi category add karo</option>}
-              {categories.map((c) => <option key={c}>{c}</option>)}
+              {expenseCategories.length === 0 && <option value="">Pehle Categories page se Expense category add karo</option>}
+              {expenseCategories.map((c) => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div>

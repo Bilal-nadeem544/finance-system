@@ -6,6 +6,7 @@ import Accounts from "./pages/Accounts";
 import Transactions from "./pages/Transactions";
 import Invoices from "./pages/Invoices";
 import Expenses from "./pages/Expenses";
+import Categories from "./pages/Categories";
 import Budgets from "./pages/Budgets";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -33,6 +34,7 @@ function App() {
         <Route path="/transactions" element={<ProtectedRoute><AppLayout><Transactions /></AppLayout></ProtectedRoute>} />
         <Route path="/invoices" element={<ProtectedRoute><AppLayout><Invoices /></AppLayout></ProtectedRoute>} />
         <Route path="/expenses" element={<ProtectedRoute><AppLayout><Expenses /></AppLayout></ProtectedRoute>} />
+        <Route path="/categories" element={<ProtectedRoute><AppLayout><Categories /></AppLayout></ProtectedRoute>} />
         <Route path="/budgets" element={<ProtectedRoute><AppLayout><Budgets /></AppLayout></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute><AppLayout><Reports /></AppLayout></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />

@@ -11,13 +11,16 @@ export function FinanceProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [budgets, setBudgets] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]); // [{id, name, type}]
   const [loading, setLoading] = useState(false);
 
   const settings = { companyName: "Ahmed Enterprises", currency: "PKR - Pakistani Rupee", fiscalYearStart: "January" };
   const profile = user
     ? { name: user.name, role: "Finance admin", email: user.email }
     : { name: "", role: "", email: "" };
+
+  const incomeCategories = categories.filter((c) => c.type === "Income").map((c) => c.name);
+  const expenseCategories = categories.filter((c) => c.type === "Expense").map((c) => c.name);
 
   const fetchAll = useCallback(async () => {
     if (!user) return;
@@ -34,7 +37,7 @@ export function FinanceProvider({ children }) {
       setTransactions(txRes.data);
       setInvoices(invRes.data);
       setBudgets(budRes.data);
-      setCategories(catRes.data.map((c) => c.name));
+      setCategories(catRes.data);
     } catch (err) {
       console.error("Failed to load finance data", err);
     } finally {
@@ -72,7 +75,7 @@ export function FinanceProvider({ children }) {
 
   const deleteTransaction = async (id) => {
     await api.delete(`/transactions/${id}`);
-    await fetchAll(); // account balance/budget bhi backend pe revert hoti hai, isliye sab refresh
+    await fetchAll();
   };
 
   const addExpense = async (expense) => {
@@ -107,18 +110,14 @@ export function FinanceProvider({ children }) {
     setBudgets((prev) => prev.filter((b) => b.id !== id));
   };
 
-  const addCategory = async (name) => {
-    const res = await api.post("/categories", { name });
-    setCategories((prev) => [...prev, res.data.name]);
+  const addCategory = async (name, type) => {
+    const res = await api.post("/categories", { name, type });
+    setCategories((prev) => [...prev, res.data]);
   };
 
-  const removeCategory = async (name) => {
-    const res = await api.get("/categories");
-    const match = res.data.find((c) => c.name === name);
-    if (match) {
-      await api.delete(`/categories/${match.id}`);
-      setCategories((prev) => prev.filter((c) => c !== name));
-    }
+  const removeCategory = async (id) => {
+    await api.delete(`/categories/${id}`);
+    setCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
   const updateSettings = () => {};
@@ -132,6 +131,8 @@ export function FinanceProvider({ children }) {
         invoices,
         budgets,
         categories,
+        incomeCategories,
+        expenseCategories,
         settings,
         profile,
         loading,
