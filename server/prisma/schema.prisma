@@ -30,8 +30,11 @@ model Account {
 
 model Category {
   id        String   @id @default(uuid())
-  name      String   @unique
+  name      String
+  type      String   // Income / Expense
   createdAt DateTime @default(now())
+
+  @@unique([name, type])
 }
 
 model Transaction {

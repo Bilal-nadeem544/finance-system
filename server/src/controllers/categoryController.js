@@ -11,17 +11,17 @@ export async function getCategories(req, res, next) {
 
 export async function createCategory(req, res, next) {
   try {
-    const { name } = req.body;
-    if (!name) {
-      return res.status(400).json({ message: "Category name is required" });
+    const { name, type } = req.body;
+    if (!name || !type) {
+      return res.status(400).json({ message: "Category name and type are required" });
     }
 
-    const existing = await prisma.category.findUnique({ where: { name } });
+    const existing = await prisma.category.findFirst({ where: { name, type } });
     if (existing) {
       return res.status(409).json({ message: "Category already exists" });
     }
 
-    const category = await prisma.category.create({ data: { name } });
+    const category = await prisma.category.create({ data: { name, type } });
     res.status(201).json(category);
   } catch (err) {
     next(err);
