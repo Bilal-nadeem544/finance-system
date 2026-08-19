@@ -38,15 +38,15 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col sticky top-0">
-      <div className="flex items-center gap-2 px-5 py-5">
+      <div className="flex flex-col items-center gap-2 px-5 py-5 text-center">
         {brandLogo ? (
-          <img src={brandLogo} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
+          <img src={brandLogo} alt="Logo" className="w-14 h-14 rounded-lg object-cover" />
         ) : (
-          <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-white font-bold">
+          <div className="w-14 h-14 rounded-lg bg-green-500 flex items-center justify-center text-white font-bold text-2xl">
             $
           </div>
         )}
-        <span className="font-semibold text-gray-800 truncate">{brandName}</span>
+        <span className="font-semibold text-gray-800 text-sm leading-tight break-words">{brandName}</span>
       </div>
 
       <nav className="flex-1 px-3 space-y-1">
