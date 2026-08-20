@@ -3,74 +3,90 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  password     String
-  role         String   @default("admin")
-  tokenVersion Int      @default(0)
-  createdAt    DateTime @default(now())
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+
+  accounts     Account[]
+  transactions Transaction[]
+
+  @@map("User")
 }
 
 model Account {
-  id           String        @id @default(uuid())
-  name         String
-  type         String        // Bank / Cash
-  bank         String?
-  balance      Float         @default(0)
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  type      String
+  balance   Decimal  @default(0)
+  createdAt DateTime @default(now())
+
   transactions Transaction[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+
+  @@map("Account")
 }
 
 model Category {
-  id        String   @id @default(uuid())
-  name      String
-  type      String   // Income / Expense
-  createdAt DateTime @default(now())
+  id     String        @id @default(uuid())
+  name   String
+  type   String // income | expense
 
-  @@unique([name, type])
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@map("Category")
 }
 
 model Transaction {
-  id              String    @id @default(uuid())
-  type            String    // Income / Expense
-  amount          Float
-  date            DateTime
-  category        String
-  description     String?
-
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
   accountId       String
-  account         Account   @relation(fields: [accountId], references: [id])
+  account         Account  @relation(fields: [accountId], references: [id])
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+  type            String // income | expense
+  amount          Decimal
+  description     String?
+  date            DateTime @default(now())
+  sourceInvoiceId String?  // scalar link to Invoicing's Invoice.id (same physical DB, no cross-schema relation)
+  createdAt       DateTime @default(now())
 
-  sourceInvoiceId String?
-
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  @@map("Transaction")
 }
 
+// Read-mirror of Invoicing's Invoice table — same physical table (@@map matches),
+// used only so Finance can query/display invoice data without calling the Invoicing API.
+// Do NOT write to this model from Finance's code.
 model Invoice {
-  id         String   @id @default(uuid())
+  id         String   @id
   invoiceNo  String   @unique
-  client     String
-  issueDate  DateTime
+  customerId String
+  status     String
+  total      Decimal
   dueDate    DateTime
-  amount     Float
-  status     String   @default("Pending") // Pending / Overdue / Paid
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  issueDate  DateTime
+
+  @@map("Invoice")
 }
 
 model Budget {
-  id        String   @id @default(uuid())
-  category  String   @unique
-  budgeted  Float
-  spent     Float    @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  amount     Decimal
+  month      Int
+  year       Int
+
+  @@map("Budget")
 }
